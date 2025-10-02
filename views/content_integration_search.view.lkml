@@ -30,7 +30,7 @@ view: content_integration_search {
       response,
       site_currency as site_currency,
       source,
-      (response != 'success', 0, response_time) AS response_time
+      IF(response != 'success', 0, response_time) AS response_time
     FROM search_api_stats.gds_raw
     WHERE
         date_added > {% parameter start_date %}
@@ -100,7 +100,7 @@ view: content_integration_search {
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
-    sql: ${TABLE}.ff_hash ;;
+    sql: NOT empty(${TABLE}.ff_hash) ;;
     group_label: "3. Search Source"
   }
 
