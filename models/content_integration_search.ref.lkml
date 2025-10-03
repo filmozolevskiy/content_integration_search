@@ -157,6 +157,7 @@ view: +content_integration_search {
         ELSE 'Unknown'
       END ;;
     group_label: "3. Search Source"
+    hidden: yes
   }
 
   dimension: affiliate_label {

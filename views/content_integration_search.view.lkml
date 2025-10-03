@@ -122,6 +122,7 @@ view: content_integration_search {
     type: number
     sql: ${TABLE}.affiliate_id ;;
     group_label: "3. Search Source"
+    hidden: yes
   }
 
   dimension: target_id {
