@@ -90,6 +90,15 @@ view: content_integration_search {
     group_label: "2. Content & Suppliers"
   }
 
+  dimension: errors {
+    type: string
+    sql: CASE
+          WHEN ${TABLE}.response != 'success'
+          THEN ${TABLE}.response
+        END;;
+    group_label: "2. Content & Suppliers"
+  }
+
   dimension: num_packages_returned {
     type: number
     value_format: "0"
