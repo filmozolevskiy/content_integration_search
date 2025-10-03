@@ -63,53 +63,58 @@ view: content_integration_search {
   dimension: content_source {
     type: string
     sql: ${TABLE}.content_source ;;
-    group_label: "2. Content & Suppliers"
+    group_label: "2. Content"
+  }
+
+  dimension: office_id {
+    type: string
+    sql: ${TABLE}.office_id ;;
+    group_label: "2. Content"
   }
 
   dimension: suppliers_to_fetch {
     type: string
     sql: ${TABLE}.suppliers_to_fetch ;;
-    group_label: "2.  Content & Suppliers"
+    group_label: "2. Content"
   }
 
   dimension: airline_codes {
     type: string
     sql: ${TABLE}.airline_codes ;;
-    group_label: "2. Content & Suppliers"
+    group_label: "2. Content"
   }
 
   dimension: preferred_carriers {
     type: string
     sql: ${TABLE}.preferred_carriers ;;
-    group_label: "2. Content & Suppliers"
-  }
-
-  dimension: response {
-    type: string
-    sql: ${TABLE}.response ;;
-    group_label: "2. Content & Suppliers"
-  }
-
-  dimension: errors {
-    type: string
-    sql: CASE
-          WHEN ${TABLE}.response != 'success'
-          THEN ${TABLE}.response
-        END;;
-    group_label: "2. Content & Suppliers"
+    group_label: "2. Content"
   }
 
   dimension: num_packages_returned {
     type: number
     value_format: "0"
     sql: ${TABLE}.num_packages_returned ;;
-    group_label: "2. Content & Suppliers"
+    group_label: "2. Content"
   }
 
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
     sql: NOT empty(${TABLE}.ff_hash) ;;
+    group_label: "3. Search Source"
+  }
+
+  dimension: is_google_search {
+    label: "Is Google Search"
+    type: yesno
+    sql: (${affiliate_id} = 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) ;;
+    group_label: "3. Search Source"
+  }
+
+  dimension: is_regular_search {
+    label: "Is Regular Search"
+    type: yesno
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
   }
 
@@ -123,37 +128,6 @@ view: content_integration_search {
     type: number
     sql: ${TABLE}.target_id ;;
     group_label: "3. Search Source"
-  }
-
-  dimension: office_id {
-    type: string
-    sql: ${TABLE}.office_id ;;
-    group_label: "Keys & IDs"
-  }
-
-
-  dimension: origin {
-    type: string
-    sql: ${TABLE}.origin ;;
-    group_label: "Markets & Geography"
-  }
-
-  dimension: destination {
-    type: string
-    sql: ${TABLE}.destination ;;
-    group_label: "Markets & Geography"
-  }
-
-  dimension: origin_country {
-    type: string
-    sql: ${TABLE}.origin_country ;;
-    group_label: "Markets & Geography"
-  }
-
-  dimension: destination_country {
-    type: string
-    sql: ${TABLE}.destination_country ;;
-    group_label: "Markets & Geography"
   }
 
   dimension: api_user {
@@ -174,9 +148,9 @@ view: content_integration_search {
     group_label: "3. Search Source"
   }
 
-
   dimension: source {
     type: string
+    label: "External / Internal / Fare Alert"
     sql:
     CASE
       WHEN ${TABLE}.source = 'search' THEN 'internal'
@@ -185,7 +159,31 @@ view: content_integration_search {
       WHEN ${TABLE}.source = 'other' THEN 'other'
       WHEN ${TABLE}.source = 'alert' THEN 'fare_alert'
     END ;;
-    group_label: "Response & Results"
+    group_label: "3. Search Source"
+  }
+
+  dimension: origin {
+    type: string
+    sql: ${TABLE}.origin ;;
+    group_label: "4. Locations"
+  }
+
+  dimension: destination {
+    type: string
+    sql: ${TABLE}.destination ;;
+    group_label: "4. Locations"
+  }
+
+  dimension: origin_country {
+    type: string
+    sql: ${TABLE}.origin_country ;;
+    group_label: "4. Locations"
+  }
+
+  dimension: destination_country {
+    type: string
+    sql: ${TABLE}.destination_country ;;
+    group_label: "4. Locations"
   }
 
   dimension: response_time {
@@ -193,7 +191,23 @@ view: content_integration_search {
     type: number
     value_format: "0"
     sql: ${TABLE}.response_time ;;
-    group_label: "Response & Results"
+    group_label: "5. Results"
+  }
+
+
+  dimension: response {
+    type: string
+    sql: ${TABLE}.response ;;
+    group_label: "5. Results"
+  }
+
+  dimension: errors {
+    type: string
+    sql: CASE
+          WHEN ${TABLE}.response != 'success'
+          THEN ${TABLE}.response
+        END;;
+    group_label: "5. Results"
   }
 
   # -------------------------
@@ -209,7 +223,7 @@ view: content_integration_search {
   measure: regular_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no"]
+    filters: [is_ffp: "no", is_google_search: "no"]
     label: "Regular Request Count"
     group_label: "Volume"
   }
@@ -217,8 +231,16 @@ view: content_integration_search {
   measure: ffp_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "yes"]
+    filters: [is_ffp: "yes", is_ffp: "no"]
     label: "FF+ Request Count"
+    group_label: "Volume"
+  }
+
+  measure: google_search_request_count {
+    type: count
+    value_format_name: decimal_2
+    filters: [is_ffp: "no", is_ffp: "yes"]
+    label: "Google Search Request Count"
     group_label: "Volume"
   }
 
