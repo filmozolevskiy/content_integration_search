@@ -232,7 +232,7 @@ view: content_integration_search {
   measure: ffp_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "yes", is_ffp: "no"]
+    filters: [is_ffp: "yes", is_google_search: "no"]
     label: "FF+ Request Count"
     group_label: "Volume"
   }
@@ -240,7 +240,7 @@ view: content_integration_search {
   measure: google_search_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_ffp: "yes"]
+    filters: [is_ffp: "no", is_google_search: "yes"]
     label: "Google Search Request Count"
     group_label: "Volume"
   }
@@ -249,6 +249,7 @@ view: content_integration_search {
     type: sum
     sql: (CASE WHEN ${num_packages_returned} > 0 THEN 1 ELSE 0 END) ;;
     group_label: "Volume"
+    hidden: yes
   }
 
   # Latency
