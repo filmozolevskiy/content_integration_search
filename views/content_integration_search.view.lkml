@@ -147,7 +147,7 @@ view: content_integration_search {
       WHEN ${affiliate_id} != 1042 AND ${is_ffp} = NO AND ${TABLE}.source = 'alert' THEN 'fare_alert'
       ELSE 'Other'
     END ;;
-    suggestions: ["Google Search","Fare Fetch+","Regular Search","Other"]
+    suggestions: ["Google Search","Fare Fetch+","Regular Search","Fare Alert", "Other"]
   }
 
   dimension: affiliate_id {
