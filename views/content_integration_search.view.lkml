@@ -11,7 +11,9 @@ view: content_integration_search {
       IF(office_id IN ('AF8A','AF8B'), 'LH_Farelogix',
           IF(office_id IN ('AB2L','AB2O'), 'AA_Farelogix',
               IF(office_id IN ('BWKG','BV6I'), 'CM_Farelogix',
-                  IF(office_id = 'AHYI','WS_Farelogix', content_source)))) AS content_source,
+                  IF(office_id = 'AHYI','WS_Farelogix',
+                    IF(office_id = 'NAVPDCAD','PD_Navitaire-NDC',
+                      IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC',content_source)))))) AS content_source,
       JSONExtractString(request_options, 'suppliers_to_fetch') AS suppliers_to_fetch,
       JSONExtractString(request_options, 'airline_codes') AS airline_codes,
       JSONExtractString(request_options, 'preferred_carrier_codes') AS preferred_carriers,
@@ -188,10 +190,18 @@ view: content_integration_search {
   }
 
   dimension: site_currency {
+    label: "Site Currency"
     type: string
-    sql: ${TABLE}.site_currency ;;
     group_label: "3. Search Source"
+    sql:
+    CASE
+      WHEN upperUTF8(trimBoth(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
+        THEN upperUTF8(trimBoth(${TABLE}.site_currency))
+      ELSE 'Other'
+    END ;;
+    suggestions: ["USD","CAD","GBP","Other"]
   }
+
 
   dimension: origin {
     type: string
