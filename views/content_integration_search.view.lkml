@@ -100,7 +100,7 @@ view: content_integration_search {
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
-    sql: NOT empty(${TABLE}.ff_hash) ;;
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
   }
 
