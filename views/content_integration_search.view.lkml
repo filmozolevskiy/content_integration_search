@@ -118,6 +118,38 @@ view: content_integration_search {
     group_label: "3. Search Source"
   }
 
+  ## source = 'alert' is excluded; it is addressed in search_engine
+  dimension: search_source {
+    type: string
+    label: "External or Internal"
+    group_label: "3. Search Source"
+    sql:
+    CASE
+      WHEN ${TABLE}.source = 'search' THEN 'internal'
+      WHEN ${TABLE}.source = 'repricer' THEN 'repricer'
+      WHEN ${TABLE}.source = 'external' THEN 'external'
+      WHEN ${TABLE}.source = 'other' THEN 'other'
+      WHEN ${TABLE}.source = 'scraper' THEN 'scraper'
+      WHEN ${TABLE}.source = 'self-serve' THEN 'self-serve'
+    END ;;
+  }
+
+  dimension: search_engine {
+    label: "Search Engine"
+    description: "Who searches: Google Search, FF+, Regular Search, Fare Alert"
+    type: string
+    group_label: "3. Search Source"
+    sql:
+    CASE
+      WHEN ${affiliate_id} = 1042 AND ${is_ffp} = NO AND ${TABLE}.source != 'alert' THEN 'Google Search'
+      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = YES AND ${TABLE}.source != 'alert' THEN 'Fare Fetch+'
+      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = NO AND ${TABLE}.source != 'alert' THEN 'Regular Search'
+      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = NO AND ${TABLE}.source = 'alert' THEN 'fare_alert'
+      ELSE 'Other'
+    END ;;
+    suggestions: ["Google Search","Fare Fetch+","Regular Search","Other"]
+  }
+
   dimension: affiliate_id {
     type: number
     sql: ${TABLE}.affiliate_id ;;
@@ -146,20 +178,6 @@ view: content_integration_search {
   dimension: site_currency {
     type: string
     sql: ${TABLE}.site_currency ;;
-    group_label: "3. Search Source"
-  }
-
-  dimension: source {
-    type: string
-    label: "External / Internal / Fare Alert"
-    sql:
-    CASE
-      WHEN ${TABLE}.source = 'search' THEN 'internal'
-      WHEN ${TABLE}.source = 'repricer' THEN 'optimizer'
-      WHEN ${TABLE}.source = 'external' THEN 'external'
-      WHEN ${TABLE}.source = 'other' THEN 'other'
-      WHEN ${TABLE}.source = 'alert' THEN 'fare_alert'
-    END ;;
     group_label: "3. Search Source"
   }
 
