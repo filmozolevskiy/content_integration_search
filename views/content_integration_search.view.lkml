@@ -279,7 +279,7 @@ view: content_integration_search {
     type: count
     value_format_name: decimal_2
     filters: [is_ffp: "no", is_google_search: "no", is_fare_alert: "yes", is_regular_search: "no"]
-    label: "Google Search Request Count"
+    label: "Fare Alerts Request Count"
     group_label: "Volume"
   }
 
