@@ -143,6 +143,7 @@ view: content_integration_search {
       WHEN ${TABLE}.source = 'scraper' THEN 'scraper'
       WHEN ${TABLE}.source = 'self-serve' THEN 'self-serve'
     END ;;
+    suggestions: ["internal","external","scraper","self-serve","repricer","other"]
   }
 
   dimension: search_engine {
@@ -253,7 +254,7 @@ view: content_integration_search {
   measure: regular_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_google_search: "no"]
+    filters: [is_ffp: "no", is_google_search: "no", is_fare_alert: "no", is_regular_search: "yes"]
     label: "Regular Request Count"
     group_label: "Volume"
   }
@@ -261,7 +262,7 @@ view: content_integration_search {
   measure: ffp_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "yes", is_google_search: "no"]
+    filters: [is_ffp: "yes", is_google_search: "no", is_fare_alert: "no", is_regular_search: "no"]
     label: "FF+ Request Count"
     group_label: "Volume"
   }
@@ -269,7 +270,15 @@ view: content_integration_search {
   measure: google_search_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_google_search: "yes"]
+    filters: [is_ffp: "no", is_google_search: "yes", is_fare_alert: "no", is_regular_search: "no"]
+    label: "Google Search Request Count"
+    group_label: "Volume"
+  }
+
+  measure: fare_alerts_request_count {
+    type: count
+    value_format_name: decimal_2
+    filters: [is_ffp: "no", is_google_search: "no", is_fare_alert: "yes", is_regular_search: "no"]
     label: "Google Search Request Count"
     group_label: "Volume"
   }
