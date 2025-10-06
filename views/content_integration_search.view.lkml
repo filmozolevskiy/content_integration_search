@@ -114,7 +114,7 @@ view: content_integration_search {
   dimension: is_regular_search {
     label: "Is Regular Search"
     type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) ;;
     group_label: "3. Search Source"
   }
 
