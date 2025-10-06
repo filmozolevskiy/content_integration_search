@@ -100,22 +100,33 @@ view: content_integration_search {
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) AND ${TABLE}.source != 'alert';;
     group_label: "3. Search Source"
+    hidden: yes
   }
 
   dimension: is_google_search {
     label: "Is Google Search"
     type: yesno
-    sql: (${affiliate_id} = 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) ;;
+    sql: (${affiliate_id} = 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source != 'alert';;
     group_label: "3. Search Source"
+    hidden: yes
   }
 
   dimension: is_regular_search {
     label: "Is Regular Search"
     type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) ;;
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source != 'alert';;
     group_label: "3. Search Source"
+    hidden: yes
+  }
+
+  dimension: is_fare_alert {
+    label: "Is Fare_alert"
+    type: yesno
+    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source = 'alert';;
+    group_label: "3. Search Source"
+    hidden: yes
   }
 
   ## source = 'alert' is excluded; it is addressed in search_engine
@@ -141,10 +152,10 @@ view: content_integration_search {
     group_label: "3. Search Source"
     sql:
     CASE
-      WHEN ${affiliate_id} = 1042 AND ${is_ffp} = NO AND ${TABLE}.source != 'alert' THEN 'Google Search'
-      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = YES AND ${TABLE}.source != 'alert' THEN 'Fare Fetch+'
-      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = NO AND ${TABLE}.source != 'alert' THEN 'Regular Search'
-      WHEN ${affiliate_id} != 1042 AND ${is_ffp} = NO AND ${TABLE}.source = 'alert' THEN 'fare_alert'
+      WHEN ${is_google_search} AND NOT ${is_ffp} AND NOT ${is_fare_alert} THEN 'Google Search'
+      WHEN NOT ${is_google_search} AND ${is_ffp} AND NOT ${is_fare_alert} THEN 'Fare Fetch+'
+      WHEN NOT ${is_google_search} AND NOT ${is_ffp} AND ${is_fare_alert} THEN 'Fare Alert'
+      WHEN NOT ${is_google_search} AND NOT ${is_ffp} AND NOT ${is_fare_alert} THEN 'Regular Search'
       ELSE 'Other'
     END ;;
     suggestions: ["Google Search","Fare Fetch+","Regular Search","Fare Alert", "Other"]
