@@ -46,7 +46,7 @@ view: content_integration_search {
 
   dimension_group: dayd {
     type: time
-    timeframes: [raw, time, date, week, month, quarter, year]
+    timeframes: [raw, time, minute, hour, date, week, month, quarter, year]
     sql: ${TABLE}.dayd ;;
     group_label: "1. Time"
   }
