@@ -304,7 +304,7 @@ view: content_integration_search {
   measure: avg_response_time {
     type: average
     sql: ${response_time} ;;
-    value_format: "0"
+    value_format: "0.00"
     label: "Avg Response Time (ms)"
     group_label: "Latency"
   }
