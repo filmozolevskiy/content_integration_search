@@ -230,7 +230,7 @@ view: content_integration_search {
   dimension: response_time {
     label: "Response Time (ms, 0 if not success)"
     type: number
-    value_format: "0"
+    value_format: "0.00"
     sql: ${TABLE}.response_time ;;
     group_label: "5. Results"
   }
