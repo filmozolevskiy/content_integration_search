@@ -31,6 +31,8 @@ view: content_integration_search {
       num_packages_returned,
       response,
       site_currency as site_currency,
+      currency as content_currency,
+      multiticket_part,
       source,
       IF(response != 'success', 0, response_time) AS response_time
     FROM search_api_stats.gds_raw
@@ -96,6 +98,18 @@ view: content_integration_search {
     type: number
     value_format: "0"
     sql: ${TABLE}.num_packages_returned ;;
+    group_label: "2. Content"
+  }
+
+  dimension: multiticket_part {
+    type: string
+    sql: ${TABLE}.multiticket_part ;;
+    group_label: "2. Content"
+  }
+
+  dimension: is_multiticket{
+    type: yesno
+    sql: ${TABLE}.multiticket_part ;;
     group_label: "2. Content"
   }
 
@@ -202,6 +216,35 @@ view: content_integration_search {
     suggestions: ["USD","CAD","GBP","Other"]
   }
 
+  dimension: content_currency {
+    label: "Content Currency"
+    type: string
+    group_label: "3. Search Source"
+    sql:
+    CASE
+      WHEN upperUTF8(trimBoth(${TABLE}.content_currency)) IN ('USD','CAD','GBP')
+        THEN upperUTF8(trimBoth(${TABLE}.content_currency))
+      ELSE 'Other'
+    END ;;
+    suggestions: ["USD","CAD","GBP","Other"]
+    hidden: yes
+  }
+
+  dimension: is_multicurrency {
+    label: "Is Multicurrency"
+    type: yesno
+    group_label: "3. Search Source"
+    sql:
+    CASE
+      WHEN upperUTF8(trimBoth(${TABLE}.site_currency)) IS NULL
+        OR upperUTF8(trimBoth(${TABLE}.content_currency)) IS NULL
+        THEN NULL
+      WHEN upperUTF8(trimBoth(${TABLE}.site_currency))
+         <> upperUTF8(trimBoth(${TABLE}.content_currency))
+        THEN TRUE
+      ELSE FALSE
+    END ;;
+  }
 
   dimension: origin {
     type: string
