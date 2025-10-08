@@ -14,7 +14,7 @@ view: content_integration_search {
             IF(office_id = 'AHYI','WS_Farelogix',
               IF(office_id = 'NAVPDCAD','PD_Navitaire-NDC',
                 IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC',
-                  IF(JSONExtractString(request_options, 'enable_ndc_content') = 1,'AmadeusNDC', content_source
+                  IF(JSONExtractUInt(request_options, 'enable_ndc_content') = 1,'AmadeusNDC', content_source
                     )
                   )
                 )
