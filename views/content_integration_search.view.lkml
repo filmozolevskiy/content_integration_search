@@ -13,9 +13,7 @@ view: content_integration_search {
           IF(office_id IN ('BWKG','BV6I'), 'CM_Farelogix',
             IF(office_id = 'AHYI','WS_Farelogix',
               IF(office_id = 'NAVPDCAD','PD_Navitaire-NDC',
-                IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC',
-                  IF(JSONExtractUInt(request_options, 'enable_ndc_content') = 1,'AmadeusNDC', content_source
-                    )
+                IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC', content_source
                   )
                 )
               )
@@ -28,7 +26,7 @@ view: content_integration_search {
       JSONExtractString(request_options, 'fare_fetch_hash') AS ff_hash,
       affiliate_id,
       target_id,
-      IF(JSONExtractUInt(request_options, 'enable_ndc_content') = 1, concat(office_id, 'NDC'), office_id) AS office_id,
+      office_id,
       origin,
       destination,
       origin_country,
