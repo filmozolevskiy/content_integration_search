@@ -28,7 +28,7 @@ view: content_integration_search {
       JSONExtractString(request_options, 'fare_fetch_hash') AS ff_hash,
       affiliate_id,
       target_id,
-      office_id,
+      IF(JSONExtractUInt(request_options, 'enable_ndc_content') = 1, concat(office_id, 'NDC'), office_id) AS office_id,
       origin,
       destination,
       origin_country,
