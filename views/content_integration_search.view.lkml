@@ -331,7 +331,7 @@ view: content_integration_search {
   measure: regular_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_google_search: "no", is_fare_alert: "no", is_regular_search: "yes"]
+    filters: [is_regular_search: "yes"]
     label: "Regular Request Count"
     group_label: "Volume"
   }
@@ -339,7 +339,7 @@ view: content_integration_search {
   measure: ffp_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "yes", is_google_search: "no", is_fare_alert: "no", is_regular_search: "no"]
+    filters: [is_ffp: "yes"]
     label: "FF+ Request Count"
     group_label: "Volume"
   }
@@ -347,7 +347,7 @@ view: content_integration_search {
   measure: google_search_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_google_search: "yes", is_fare_alert: "no", is_regular_search: "no"]
+    filters: [is_google_search: "yes"]
     label: "Google Search Request Count"
     group_label: "Volume"
   }
@@ -355,8 +355,16 @@ view: content_integration_search {
   measure: fare_alerts_request_count {
     type: count
     value_format_name: decimal_2
-    filters: [is_ffp: "no", is_google_search: "no", is_fare_alert: "yes", is_regular_search: "no"]
+    filters: [is_fare_alert: "yes"]
     label: "Fare Alerts Request Count"
+    group_label: "Volume"
+  }
+
+  measure: repricer_request_count {
+    type: count
+    value_format_name: decimal_2
+    filters: [is_repricer: "yes"]
+    label: "Repricer Request Count"
     group_label: "Volume"
   }
 
