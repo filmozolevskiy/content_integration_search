@@ -122,15 +122,31 @@ view: content_integration_search {
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) AND ${TABLE}.source != 'alert';;
+    sql: (NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
     hidden: yes
   }
 
   dimension: is_google_search {
-    label: "Is Google Search"
+    label: "Is Google Flight Search"
     type: yesno
-    sql: (${affiliate_id} = 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source != 'alert';;
+    sql: (${api_user} = 'gfs' AND NOT ${is_ffp}) ;;
+    group_label: "3. Search Source"
+    hidden: yes
+  }
+
+  dimension: is_fare_alert {
+    label: "Is Fare Alert"
+    type: yesno
+    sql: (${api_user} IN ('fhub_fare_alert', 'jfly_fare_alert') AND NOT ${is_ffp}) ;;
+    group_label: "3. Search Source"
+    hidden: yes
+  }
+
+  dimension: is_repricer {
+    label: "Is Repricer"
+    type: yesno
+    sql: (${TABLE}.source = 'repricer' AND NOT ${is_ffp}) ;;
     group_label: "3. Search Source"
     hidden: yes
   }
@@ -138,18 +154,11 @@ view: content_integration_search {
   dimension: is_regular_search {
     label: "Is Regular Search"
     type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source != 'alert';;
+    sql: (NOT ${is_ffp} AND NOT ${is_google_search} AND NOT ${is_fare_alert} AND NOT ${is_repricer}) ;;
     group_label: "3. Search Source"
     hidden: yes
   }
 
-  dimension: is_fare_alert {
-    label: "Is Fare_alert"
-    type: yesno
-    sql: (${affiliate_id} != 1042 AND NULLIF(TRIM(${TABLE}.ff_hash), '') IS NULL) AND ${TABLE}.source = 'alert';;
-    group_label: "3. Search Source"
-    hidden: yes
-  }
 
   ## source = 'alert' is excluded; it is addressed in search_engine
   dimension: search_source {
@@ -175,13 +184,14 @@ view: content_integration_search {
     group_label: "3. Search Source"
     sql:
     CASE
-      WHEN ${is_google_search} AND NOT ${is_ffp} AND NOT ${is_fare_alert} THEN 'Google Search'
-      WHEN NOT ${is_google_search} AND ${is_ffp} AND NOT ${is_fare_alert} THEN 'Fare Fetch+'
-      WHEN NOT ${is_google_search} AND NOT ${is_ffp} AND ${is_fare_alert} THEN 'Fare Alert'
-      WHEN NOT ${is_google_search} AND NOT ${is_ffp} AND NOT ${is_fare_alert} THEN 'Regular Search'
+      WHEN ${is_google_search}    THEN 'Google Search'
+      WHEN ${is_ffp}              THEN 'Fare Fetch+'
+      WHEN ${is_fare_alert}       THEN 'Fare Alert'
+      WHEN ${is_regular_search}   THEN 'Regular Search'
+      WHEN ${is_repricer}         THEN 'Repricer'
       ELSE 'Other'
     END ;;
-    suggestions: ["Google Search","Fare Fetch+","Regular Search","Fare Alert", "Other"]
+    suggestions: ["Google Search","Fare Fetch+","Regular Search","Fare Alert", "Repricer", "Other"]
   }
 
   dimension: affiliate_id {
@@ -250,6 +260,14 @@ view: content_integration_search {
         THEN TRUE
       ELSE FALSE
     END ;;
+  }
+
+  dimension: api_call {
+    label: "Api Call"
+    type: string
+    group_label: "3. Search Source"
+    sql: ${TABLE}.api_call
+      ;;
   }
 
   dimension: origin {
