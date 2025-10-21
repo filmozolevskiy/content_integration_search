@@ -40,6 +40,7 @@ view: content_integration_search {
       currency as content_currency,
       multiticket_part,
       source,
+      api_call,
       IF(response != 'success', 0, response_time) AS response_time
     FROM search_api_stats.gds_raw
     WHERE
@@ -115,7 +116,7 @@ view: content_integration_search {
 
   dimension: is_multiticket{
     type: yesno
-    sql: ${TABLE}.multiticket_part ;;
+    sql: (NULLIF(TRIM(${TABLE}.multiticket_part), '') IS NOT NULL) ;;
     group_label: "2. Content"
   }
 
@@ -224,11 +225,11 @@ view: content_integration_search {
     type: string
     group_label: "3. Search Source"
     sql:
-    CASE
-      WHEN upperUTF8(trimBoth(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
-        THEN upperUTF8(trimBoth(${TABLE}.site_currency))
-      ELSE 'Other'
-    END ;;
+      CASE
+        WHEN upperUTF8(trim(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(${TABLE}.site_currency))
+        ELSE 'Other'
+      END ;;
     suggestions: ["USD","CAD","GBP","Other"]
   }
 
@@ -238,8 +239,8 @@ view: content_integration_search {
     group_label: "3. Search Source"
     sql:
     CASE
-      WHEN upperUTF8(trimBoth(${TABLE}.content_currency)) IN ('USD','CAD','GBP')
-        THEN upperUTF8(trimBoth(${TABLE}.content_currency))
+      WHEN upperUTF8(trim(${TABLE}.content_currency)) IN ('USD','CAD','GBP')
+        THEN upperUTF8(trim(${TABLE}.content_currency))
       ELSE 'Other'
     END ;;
     suggestions: ["USD","CAD","GBP","Other"]
@@ -252,12 +253,8 @@ view: content_integration_search {
     group_label: "3. Search Source"
     sql:
     CASE
-      WHEN upperUTF8(trimBoth(${TABLE}.site_currency)) IS NULL
-        OR upperUTF8(trimBoth(${TABLE}.content_currency)) IS NULL
-        THEN NULL
-      WHEN upperUTF8(trimBoth(${TABLE}.site_currency))
-         <> upperUTF8(trimBoth(${TABLE}.content_currency))
-        THEN TRUE
+      WHEN ${site_currency} IS NULL OR ${content_currency} IS NULL THEN NULL
+      WHEN ${site_currency} <> ${content_currency} THEN TRUE
       ELSE FALSE
     END ;;
   }
