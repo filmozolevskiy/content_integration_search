@@ -77,6 +77,8 @@ view: content_integration_search {
     group_label: "2. Content"
   }
 
+
+
   dimension: office_id {
     type: string
     sql: ${TABLE}.office_id ;;
