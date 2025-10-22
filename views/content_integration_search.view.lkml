@@ -265,8 +265,8 @@ view: content_integration_search {
     label: "Api Call"
     type: string
     group_label: "3. Search Source"
-    sql: ${TABLE}.api_call
-      ;;
+    sql: ${TABLE}.api_call;;
+    suggestions: ["Fare_InstantTravelBoardSearch","Fare_MasterPricerTravelBoardSearch"]
   }
 
   dimension: origin {
