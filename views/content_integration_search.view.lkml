@@ -38,7 +38,11 @@ view: content_integration_search {
       multiticket_part,
       source,
       api_call,
-      IF(response != 'success', 0, response_time) AS response_time
+      CASE
+        WHEN response != 'success' THEN 0
+        WHEN response_time IS NULL THEN 0
+        ELSE response_time
+      END AS response_time
     FROM search_api_stats.gds_raw
     WHERE
         date_added > {% parameter start_date %}
