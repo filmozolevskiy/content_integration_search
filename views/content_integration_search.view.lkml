@@ -212,7 +212,7 @@ view: content_integration_search {
     type: number
     sql: ${TABLE}.affiliate_id ;;
     group_label: "3. Search Source"
-    hidden: yes
+    description: "Numeric ID of the affiliate partner"
   }
 
   dimension: target_id {
