@@ -8,18 +8,15 @@ view: content_integration_search {
     sql:
     SELECT
       date_added AS dayd,
-      IF(office_id IN ('AF8A','AF8B'), 'LH_Farelogix',
-        IF(office_id IN ('AB2L','AB2O'), 'AA_Farelogix',
-          IF(office_id IN ('BWKG','BV6I'), 'CM_Farelogix',
-            IF(office_id = 'AHYI','WS_Farelogix',
-              IF(office_id = 'NAVPDCAD','PD_Navitaire-NDC',
-                IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC', content_source
-                  )
-                )
-              )
-            )
-          )
-        ) AS content_source,
+      CASE
+        WHEN office_id IN ('AF8A','AF8B') THEN 'LH_Farelogix'
+        WHEN office_id IN ('AB2L','AB2O') THEN 'AA_Farelogix'
+        WHEN office_id IN ('BWKG','BV6I') THEN 'CM_Farelogix'
+        WHEN office_id = 'AHYI' THEN 'WS_Farelogix'
+        WHEN office_id = 'NAVPDCAD' THEN 'PD_Navitaire-NDC'
+        WHEN office_id IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
+        ELSE content_source
+      END AS content_source,
       JSONExtractString(request_options, 'suppliers_to_fetch') AS suppliers_to_fetch,
       JSONExtractString(request_options, 'airline_codes') AS airline_codes,
       JSONExtractString(request_options, 'preferred_carrier_codes') AS preferred_carriers,
