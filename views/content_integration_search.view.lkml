@@ -33,8 +33,16 @@ view: content_integration_search {
       search_id,
       num_packages_returned,
       response,
-      site_currency as site_currency,
-      currency as content_currency,
+      CASE
+        WHEN upperUTF8(trim(site_currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(site_currency))
+        ELSE 'Other'
+      END AS site_currency_normalized,
+      CASE
+        WHEN upperUTF8(trim(currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(currency))
+        ELSE 'Other'
+      END AS content_currency_normalized,
       multiticket_part,
       source,
       api_call,
@@ -229,12 +237,7 @@ view: content_integration_search {
     label: "Site Currency"
     type: string
     group_label: "3. Search Source"
-    sql:
-      CASE
-        WHEN upperUTF8(trim(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
-          THEN upperUTF8(trim(${TABLE}.site_currency))
-        ELSE 'Other'
-      END ;;
+    sql: ${TABLE}.site_currency_normalized ;;
     suggestions: ["USD","CAD","GBP","Other"]
   }
 
@@ -242,12 +245,7 @@ view: content_integration_search {
     label: "Content Currency"
     type: string
     group_label: "3. Search Source"
-    sql:
-    CASE
-      WHEN upperUTF8(trim(${TABLE}.content_currency)) IN ('USD','CAD','GBP')
-        THEN upperUTF8(trim(${TABLE}.content_currency))
-      ELSE 'Other'
-    END ;;
+    sql: ${TABLE}.content_currency_normalized ;;
     suggestions: ["USD","CAD","GBP","Other"]
     hidden: yes
   }
