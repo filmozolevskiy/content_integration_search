@@ -129,6 +129,7 @@ view: content_integration_search {
     type: yesno
     sql: (NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
+    description: "Indicates if the search belongs to Fare Fetch Plus (FF+) service. Determined by presence of fare_fetch_hash."
     hidden: yes
   }
 
@@ -268,6 +269,7 @@ view: content_integration_search {
     type: string
     group_label: "3. Search Source"
     sql: ${TABLE}.api_call;;
+    description: "Amadeus API method used for the search: Fare_InstantTravelBoardSearch (faster) or Fare_MasterPricerTravelBoardSearch (comprehensive)."
     suggestions: ["Fare_InstantTravelBoardSearch","Fare_MasterPricerTravelBoardSearch"]
   }
 
