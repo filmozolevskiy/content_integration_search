@@ -53,7 +53,6 @@ view: +content_integration_search {
         WHEN ${affiliate_id} = 50 THEN 'Yulair'
         WHEN ${affiliate_id} = 500 THEN 'uncommon_search'
         WHEN ${affiliate_id} = 501 THEN 'uncommon_device'
-        WHEN ${affiliate_id} = 502 THEN 'KAYAK METAA'
         WHEN ${affiliate_id} = 503 THEN 'KAYAK METAA'
         WHEN ${affiliate_id} = 504 THEN 'hipmunk'
         WHEN ${affiliate_id} = 505 THEN 'TomorrowWorld'
