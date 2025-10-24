@@ -51,9 +51,9 @@ view: content_integration_search {
         ;;
   }
 
-  # -------------------------
-  # Dimension groups / keys
-  # -------------------------
+  # ===========================
+  # DIMENSION GROUPS / KEYS
+  # ===========================
 
   dimension_group: dayd {
     type: time
@@ -69,9 +69,9 @@ view: content_integration_search {
     hidden: yes
   }
 
-  # -------------------------
-  # Dimensions
-  # -------------------------
+  # ===========================
+  # DIMENSIONS
+  # ===========================
 
   dimension: content_source {
     type: string
@@ -166,7 +166,7 @@ view: content_integration_search {
   }
 
 
-  ## source = 'alert' is excluded; it is addressed in search_engine
+  # Note: source = 'alert' is excluded; it is addressed in search_engine dimension
   dimension: search_source {
     type: string
     label: "External or Internal"
@@ -321,9 +321,9 @@ view: content_integration_search {
     group_label: "5. Results"
   }
 
-  # -------------------------
-  # Measures
-  # -------------------------
+  # ===========================
+  # MEASURES
+  # ===========================
 
   # Volume
   measure: all_requests_count {
