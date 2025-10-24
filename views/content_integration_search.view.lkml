@@ -45,6 +45,7 @@ view: content_integration_search {
     FROM search_api_stats.gds_raw
     WHERE
         date_added > {% parameter start_date %}
+        -- This filter prevents search triplication bug: Include Kayak searches only for site_id=1, all other api_users regardless of site
         AND ((api_user IN ('kayak', 'kayakapp') AND site_id = 1) OR api_user NOT IN ('kayak', 'kayakapp'))
         ;;
   }
