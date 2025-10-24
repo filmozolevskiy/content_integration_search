@@ -269,7 +269,7 @@ view: content_integration_search {
     type: string
     group_label: "3. Search Source"
     sql: ${TABLE}.api_call;;
-    description: "Amadeus API method used for the search: Fare_InstantTravelBoardSearch (faster) or Fare_MasterPricerTravelBoardSearch (comprehensive)."
+    description: "Amadeus API method used for the search: Fare_InstantTravelBoardSearch or Fare_MasterPricerTravelBoardSearch."
     suggestions: ["Fare_InstantTravelBoardSearch","Fare_MasterPricerTravelBoardSearch"]
   }
 
@@ -372,9 +372,10 @@ view: content_integration_search {
   }
 
   measure: returned_packages_count {
-    type: sum
-    sql: (CASE WHEN ${num_packages_returned} > 0 THEN 1 ELSE 0 END) ;;
+    type: count
+    filters: [num_packages_returned: ">0"]
     group_label: "Volume"
+    description: "Count of searches that returned at least one package"
     hidden: yes
   }
 
