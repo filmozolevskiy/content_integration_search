@@ -8,18 +8,15 @@ view: content_integration_search {
     sql:
     SELECT
       date_added AS dayd,
-      IF(office_id IN ('AF8A','AF8B'), 'LH_Farelogix',
-        IF(office_id IN ('AB2L','AB2O'), 'AA_Farelogix',
-          IF(office_id IN ('BWKG','BV6I'), 'CM_Farelogix',
-            IF(office_id = 'AHYI','WS_Farelogix',
-              IF(office_id = 'NAVPDCAD','PD_Navitaire-NDC',
-                IF(office_id IN ('NAVNKUSDMC', 'NAVNKUSD'),'NK_Navitaire-NDC', content_source
-                  )
-                )
-              )
-            )
-          )
-        ) AS content_source,
+      CASE
+        WHEN office_id IN ('AF8A','AF8B') THEN 'LH_Farelogix'
+        WHEN office_id IN ('AB2L','AB2O') THEN 'AA_Farelogix'
+        WHEN office_id IN ('BWKG','BV6I') THEN 'CM_Farelogix'
+        WHEN office_id = 'AHYI' THEN 'WS_Farelogix'
+        WHEN office_id = 'NAVPDCAD' THEN 'PD_Navitaire-NDC'
+        WHEN office_id IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
+        ELSE content_source
+      END AS content_source,
       JSONExtractString(request_options, 'suppliers_to_fetch') AS suppliers_to_fetch,
       JSONExtractString(request_options, 'airline_codes') AS airline_codes,
       JSONExtractString(request_options, 'preferred_carrier_codes') AS preferred_carriers,
@@ -41,10 +38,15 @@ view: content_integration_search {
       multiticket_part,
       source,
       api_call,
-      IF(response != 'success', 0, response_time) AS response_time
+      CASE
+        WHEN response != 'success' THEN 0
+        WHEN response_time IS NULL THEN 0
+        ELSE response_time
+      END AS response_time
     FROM search_api_stats.gds_raw
     WHERE
         date_added > {% parameter start_date %}
+        -- This filter prevents search triplication bug: Include Kayak searches only for site_id=1, all other api_users regardless of site
         AND ((api_user IN ('kayak', 'kayakapp') AND site_id = 1) OR api_user NOT IN ('kayak', 'kayakapp'))
         ;;
   }
@@ -127,6 +129,7 @@ view: content_integration_search {
     type: yesno
     sql: (NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
+    description: "Indicates if the search belongs to Fare Fetch Plus (FF+) service. Determined by presence of fare_fetch_hash."
     hidden: yes
   }
 
@@ -266,6 +269,7 @@ view: content_integration_search {
     type: string
     group_label: "3. Search Source"
     sql: ${TABLE}.api_call;;
+    description: "Amadeus API method used for the search: Fare_InstantTravelBoardSearch or Fare_MasterPricerTravelBoardSearch."
     suggestions: ["Fare_InstantTravelBoardSearch","Fare_MasterPricerTravelBoardSearch"]
   }
 
@@ -324,12 +328,13 @@ view: content_integration_search {
   # Volume
   measure: all_requests_count {
     type: count
+    value_format_name: decimal_0
     group_label: "Volume"
   }
 
   measure: regular_request_count {
     type: count
-    value_format_name: decimal_2
+    value_format_name: decimal_0
     filters: [is_regular_search: "yes"]
     label: "Regular Request Count"
     group_label: "Volume"
@@ -337,7 +342,7 @@ view: content_integration_search {
 
   measure: ffp_request_count {
     type: count
-    value_format_name: decimal_2
+    value_format_name: decimal_0
     filters: [is_ffp: "yes"]
     label: "FF+ Request Count"
     group_label: "Volume"
@@ -345,7 +350,7 @@ view: content_integration_search {
 
   measure: google_search_request_count {
     type: count
-    value_format_name: decimal_2
+    value_format_name: decimal_0
     filters: [is_google_search: "yes"]
     label: "Google Search Request Count"
     group_label: "Volume"
@@ -353,7 +358,7 @@ view: content_integration_search {
 
   measure: fare_alerts_request_count {
     type: count
-    value_format_name: decimal_2
+    value_format_name: decimal_0
     filters: [is_fare_alert: "yes"]
     label: "Fare Alerts Request Count"
     group_label: "Volume"
@@ -361,16 +366,17 @@ view: content_integration_search {
 
   measure: repricer_request_count {
     type: count
-    value_format_name: decimal_2
+    value_format_name: decimal_0
     filters: [is_repricer: "yes"]
     label: "Repricer Request Count"
     group_label: "Volume"
   }
 
   measure: returned_packages_count {
-    type: sum
-    sql: (CASE WHEN ${num_packages_returned} > 0 THEN 1 ELSE 0 END) ;;
+    type: count
+    filters: [num_packages_returned: ">0"]
     group_label: "Volume"
+    description: "Count of searches that returned at least one package"
     hidden: yes
   }
 
@@ -395,6 +401,7 @@ view: content_integration_search {
   measure: error_count {
     type: sum
     sql: (CASE WHEN ${response} != 'success' THEN 1 ELSE 0 END) ;;
+    value_format_name: decimal_0
     group_label: "Health"
   }
 
