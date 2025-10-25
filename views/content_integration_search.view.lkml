@@ -87,8 +87,6 @@ view: content_integration_search {
     group_label: "2. Content"
   }
 
-
-
   dimension: office_id {
     type: string
     sql: ${TABLE}.office_id ;;
@@ -118,18 +116,21 @@ view: content_integration_search {
     value_format: "0"
     sql: ${TABLE}.num_packages_returned ;;
     group_label: "2. Content"
+    hidden: yes
   }
 
   dimension: multiticket_part {
     type: string
     sql: ${TABLE}.multiticket_part ;;
     group_label: "2. Content"
+    hidden: yes
   }
 
   dimension: is_multiticket{
     type: yesno
     sql: (NULLIF(TRIM(${TABLE}.multiticket_part), '') IS NOT NULL) ;;
     group_label: "2. Content"
+    hidden: yes
   }
 
   dimension: is_ffp {
@@ -172,7 +173,6 @@ view: content_integration_search {
     group_label: "3. Search Source"
     hidden: yes
   }
-
 
   # Note: source = 'alert' is excluded; it is addressed in search_engine dimension
   dimension: search_source {
@@ -303,7 +303,6 @@ view: content_integration_search {
     sql: ${TABLE}.response_time ;;
     group_label: "5. Results"
   }
-
 
   dimension: response {
     type: string
