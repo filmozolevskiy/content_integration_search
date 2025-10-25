@@ -3,8 +3,11 @@
 .git_tmp/
 manifest-params.json
 
-# Documentation
-docs/
+# Documentation (ignore commands folder but keep migration guides)
+docs/commands/
+!docs/MIGRATION_GUIDE.md
+!docs/DASHBOARD_CHECK.md
+!docs/reviews/
 
 # IDE and Editor files
 .vscode/
