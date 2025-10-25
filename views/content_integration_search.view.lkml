@@ -33,8 +33,16 @@ view: content_integration_search {
       search_id,
       num_packages_returned,
       response,
-      site_currency as site_currency,
-      currency as content_currency,
+      CASE
+        WHEN upperUTF8(trim(site_currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(site_currency))
+        ELSE 'Other'
+      END AS site_currency_normalized,
+      CASE
+        WHEN upperUTF8(trim(currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(currency))
+        ELSE 'Other'
+      END AS content_currency_normalized,
       multiticket_part,
       source,
       api_call,
@@ -51,9 +59,9 @@ view: content_integration_search {
         ;;
   }
 
-  # -------------------------
-  # Dimension groups / keys
-  # -------------------------
+  # ===========================
+  # DIMENSION GROUPS / KEYS
+  # ===========================
 
   dimension_group: dayd {
     type: time
@@ -69,9 +77,9 @@ view: content_integration_search {
     hidden: yes
   }
 
-  # -------------------------
-  # Dimensions
-  # -------------------------
+  # ===========================
+  # DIMENSIONS
+  # ===========================
 
   dimension: content_source {
     type: string
@@ -166,7 +174,7 @@ view: content_integration_search {
   }
 
 
-  ## source = 'alert' is excluded; it is addressed in search_engine
+  # Note: source = 'alert' is excluded; it is addressed in search_engine dimension
   dimension: search_source {
     type: string
     label: "External or Internal"
@@ -204,7 +212,7 @@ view: content_integration_search {
     type: number
     sql: ${TABLE}.affiliate_id ;;
     group_label: "3. Search Source"
-    hidden: yes
+    description: "Numeric ID of the affiliate partner"
   }
 
   dimension: target_id {
@@ -229,12 +237,7 @@ view: content_integration_search {
     label: "Site Currency"
     type: string
     group_label: "3. Search Source"
-    sql:
-      CASE
-        WHEN upperUTF8(trim(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
-          THEN upperUTF8(trim(${TABLE}.site_currency))
-        ELSE 'Other'
-      END ;;
+    sql: ${TABLE}.site_currency_normalized ;;
     suggestions: ["USD","CAD","GBP","Other"]
   }
 
@@ -242,12 +245,7 @@ view: content_integration_search {
     label: "Content Currency"
     type: string
     group_label: "3. Search Source"
-    sql:
-    CASE
-      WHEN upperUTF8(trim(${TABLE}.content_currency)) IN ('USD','CAD','GBP')
-        THEN upperUTF8(trim(${TABLE}.content_currency))
-      ELSE 'Other'
-    END ;;
+    sql: ${TABLE}.content_currency_normalized ;;
     suggestions: ["USD","CAD","GBP","Other"]
     hidden: yes
   }
@@ -321,9 +319,9 @@ view: content_integration_search {
     group_label: "5. Results"
   }
 
-  # -------------------------
-  # Measures
-  # -------------------------
+  # ===========================
+  # MEASURES
+  # ===========================
 
   # Volume
   measure: all_requests_count {
