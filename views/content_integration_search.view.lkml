@@ -1,7 +1,8 @@
 view: content_integration_search {
   parameter: start_date {
     type: date
-    default_value: "2025-01-01"
+    default_value: "1 month ago"
+    description: "Start date for data analysis. Defaults to 1 month ago from today."
   }
 
   derived_table: {
