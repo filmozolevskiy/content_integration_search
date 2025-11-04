@@ -186,6 +186,7 @@ view: content_integration_search {
       WHEN ${TABLE}.source = 'external' THEN 'external'
       WHEN ${TABLE}.source = 'other' THEN 'other'
       WHEN ${TABLE}.source = 'scraper' THEN 'scraper'
+      WHEN ${TABLE}.source = 'alert' THEN 'fare alert'
       WHEN ${TABLE}.source = 'self-serve' THEN 'self-serve'
     END ;;
     suggestions: ["internal","external","scraper","self-serve","repricer","other"]
