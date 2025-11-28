@@ -75,7 +75,7 @@ view: content_integration_search {
   dimension: dayd_5minute {
     type: string
     label: "Dayd 5 Minute"
-    sql: formatDateTime(toStartOfFiveMinute(${TABLE}.dayd), '%Y-%m-%d %H:%M') ;;
+    sql: substring(toString(toStartOfFiveMinute(${TABLE}.dayd)), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
   }
