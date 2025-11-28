@@ -67,17 +67,33 @@ view: content_integration_search {
 
   dimension_group: dayd {
     type: time
-    timeframes: [raw, time, hour, date, week, month, quarter, year]
+    timeframes: [raw, hour, date, week, month, quarter, year]
     sql: ${TABLE}.dayd ;;
     group_label: "1. Time"
   }
 
   dimension: dayd_5minute {
     type: string
-    label: "Dayd 5 Minute"
+    label: "Dayd 05 Minute"
     sql: substring(toString(toStartOfFiveMinute(${TABLE}.dayd)), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
+  }
+
+  dimension: dayd_10minute {
+    type: string
+    label: "Dayd 10 Minute"
+    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(10))), 1, 16) ;;
+    group_label: "1. Time"
+    description: "Date and time at 10-minute granularity (YYYY-MM-DD HH:MM)"
+  }
+
+  dimension: dayd_30minute {
+    type: string
+    label: "Dayd 30 Minute"
+    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(30))), 1, 16) ;;
+    group_label: "1. Time"
+    description: "Date and time at 30-minute granularity (YYYY-MM-DD HH:MM)"
   }
 
   dimension: search_id {
