@@ -72,12 +72,12 @@ view: content_integration_search {
     group_label: "1. Time"
   }
 
-  dimension: dayd_minute {
+  dimension: dayd_5minute {
     type: string
-    label: "Dayd Minute"
-    sql: formatDateTime(toStartOfMinute(${TABLE}.dayd), '%Y-%m-%d %H:%M') ;;
+    label: "Dayd 5 Minute"
+    sql: formatDateTime(toStartOfFiveMinute(${TABLE}.dayd), '%Y-%m-%d %H:%M') ;;
     group_label: "1. Time"
-    description: "Date and time at minute granularity (YYYY-MM-DD HH:MM)"
+    description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
   }
 
   dimension: search_id {
