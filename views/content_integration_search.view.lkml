@@ -65,9 +65,17 @@ view: content_integration_search {
 
   dimension_group: dayd {
     type: time
-    timeframes: [raw, time, minute, hour, date, week, month, quarter, year]
+    timeframes: [raw, time, hour, date, week, month, quarter, year]
     sql: ${TABLE}.dayd ;;
     group_label: "1. Time"
+  }
+
+  dimension: dayd_minute {
+    type: string
+    label: "Dayd Minute"
+    sql: formatDateTime(toStartOfMinute(${TABLE}.dayd), '%Y-%m-%d %H:%M') ;;
+    group_label: "1. Time"
+    description: "Date and time at minute granularity (YYYY-MM-DD HH:MM)"
   }
 
   dimension: search_id {
