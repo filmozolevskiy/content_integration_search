@@ -14,7 +14,7 @@ view: content_integration_search {
         WHEN office_id = 'AHYI' THEN 'WS_Farelogix'
         WHEN office_id IN ('BOGJ','BPNL') THEN 'AA_FarelogixNDC'
         WHEN office_id IN ('BWKG','BV6I') THEN 'CM_FarelogixNDC'
-        WHEN office_id = 'BXVU' THEN 'TS_FarelogixNDC'
+        WHEN office_id IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
         WHEN office_id IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
         WHEN office_id IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
         ELSE content_source
