@@ -11,9 +11,11 @@ view: content_integration_search {
       CASE
         WHEN office_id IN ('AF8A','AF8B') THEN 'LH_Farelogix'
         WHEN office_id IN ('AB2L','AB2O') THEN 'AA_Farelogix'
-        WHEN office_id IN ('BWKG','BV6I') THEN 'CM_Farelogix'
         WHEN office_id = 'AHYI' THEN 'WS_Farelogix'
-        WHEN office_id = 'NAVPDCAD' THEN 'PD_Navitaire-NDC'
+        WHEN office_id IN ('BOGJ','BPNL') THEN 'AA_FarelogixNDC'
+        WHEN office_id IN ('BWKG','BV6I') THEN 'CM_FarelogixNDC'
+        WHEN office_id = 'BXVU' THEN 'TS_FarelogixNDC'
+        WHEN office_id IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
         WHEN office_id IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
         ELSE content_source
       END AS content_source,
@@ -21,6 +23,7 @@ view: content_integration_search {
       JSONExtractString(request_options, 'airline_codes') AS airline_codes,
       JSONExtractString(request_options, 'preferred_carrier_codes') AS preferred_carriers,
       JSONExtractString(request_options, 'fare_fetch_hash') AS ff_hash,
+      JSONExtractString(request_options, 'custom_search') AS custom_search,
       affiliate_id,
       target_id,
       office_id,
@@ -65,17 +68,33 @@ view: content_integration_search {
 
   dimension_group: dayd {
     type: time
-    timeframes: [raw, time, hour, date, week, month, quarter, year]
+    timeframes: [raw, hour, date, week, month, quarter, year]
     sql: ${TABLE}.dayd ;;
     group_label: "1. Time"
   }
 
-  dimension: dayd_minute {
+  dimension: dayd_5minute {
     type: string
-    label: "Dayd Minute"
-    sql: formatDateTime(toStartOfMinute(${TABLE}.dayd), '%Y-%m-%d %H:%M') ;;
+    label: "Dayd 05 Minute"
+    sql: substring(toString(toStartOfFiveMinute(${TABLE}.dayd)), 1, 16) ;;
     group_label: "1. Time"
-    description: "Date and time at minute granularity (YYYY-MM-DD HH:MM)"
+    description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
+  }
+
+  dimension: dayd_10minute {
+    type: string
+    label: "Dayd 10 Minute"
+    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(10))), 1, 16) ;;
+    group_label: "1. Time"
+    description: "Date and time at 10-minute granularity (YYYY-MM-DD HH:MM)"
+  }
+
+  dimension: dayd_30minute {
+    type: string
+    label: "Dayd 30 Minute"
+    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(30))), 1, 16) ;;
+    group_label: "1. Time"
+    description: "Date and time at 30-minute granularity (YYYY-MM-DD HH:MM)"
   }
 
   dimension: search_id {
@@ -182,6 +201,14 @@ view: content_integration_search {
     hidden: yes
   }
 
+  dimension: custom_search {
+    label: "Custom Search"
+    type: yesno
+    sql: (${TABLE}.custom_search = '1') ;;
+    group_label: "3. Search Source"
+    description: "Indicates if the search is a custom search (custom_search = '1' in request_options)"
+  }
+
   # Note: source = 'alert' is excluded; it is addressed in search_engine dimension
   dimension: search_source {
     type: string
@@ -194,6 +221,7 @@ view: content_integration_search {
       WHEN ${TABLE}.source = 'external' THEN 'external'
       WHEN ${TABLE}.source = 'other' THEN 'other'
       WHEN ${TABLE}.source = 'scraper' THEN 'scraper'
+      WHEN ${TABLE}.source = 'alert' THEN 'fare alert'
       WHEN ${TABLE}.source = 'self-serve' THEN 'self-serve'
     END ;;
     suggestions: ["internal","external","scraper","self-serve","repricer","other"]
