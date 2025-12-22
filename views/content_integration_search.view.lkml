@@ -423,6 +423,14 @@ view: content_integration_search {
     group_label: "Latency"
   }
 
+  measure: max_response_time {
+    type: max
+    sql: ${response_time} ;;
+    value_format: "0.00"
+    label: "Max Response Time (ms)"
+    group_label: "Latency"
+  }
+
   # Health
   measure: returned_requests_rate {
     type: number
