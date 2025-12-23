@@ -47,6 +47,7 @@ view: content_integration_search {
         ELSE 'Other'
       END AS content_currency_normalized,
       multiticket_part,
+      class,
       source,
       api_call,
       CASE
@@ -151,6 +152,13 @@ view: content_integration_search {
     sql: ${TABLE}.multiticket_part ;;
     group_label: "2. Content"
     hidden: yes
+  }
+
+  dimension: class {
+    type: string
+    sql: ${TABLE}.class ;;
+    group_label: "2. Content"
+    description: "Service class for the flight search (e.g., Economy, Business, First)"
   }
 
   dimension: is_multiticket{
