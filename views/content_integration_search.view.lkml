@@ -48,6 +48,14 @@ view: content_integration_search {
       END AS content_currency_normalized,
       multiticket_part,
       class,
+      CASE
+        WHEN NULLIF(trim(class), '') IS NULL THEN NULL
+        WHEN upperUTF8(trim(class)) IN ('ECONOMY', 'ECONMY', 'Y', 'M') THEN 'Economy'
+        WHEN upperUTF8(trim(class)) IN ('BUSINESS', 'C') THEN 'Business'
+        WHEN upperUTF8(trim(class)) IN ('FIRST') THEN 'First'
+        WHEN upperUTF8(trim(class)) IN ('ECONOMYPREMIUM', 'ECONOMY_PREMIUM', 'PREMIUMECONOMY', 'ECONOMY PREMIUM') THEN 'Economy Premium'
+        ELSE class
+      END AS class_normalized,
       source,
       api_call,
       CASE
@@ -156,9 +164,10 @@ view: content_integration_search {
 
   dimension: class {
     type: string
-    sql: ${TABLE}.class ;;
+    sql: ${TABLE}.class_normalized ;;
     group_label: "2. Content"
-    description: "Service class for the flight search (e.g., Economy, Business, First)"
+    description: "Normalized service class for the flight search. Maps variations (economy/Economy/econmy/Y/M, business/Business/C, first/First, economypremium/EconomyPremium/Economy Premium, etc.) to standard values: Economy, Business, First, Economy Premium"
+    suggestions: ["Economy", "Business", "First", "Economy Premium"]
   }
 
   dimension: is_multiticket{
