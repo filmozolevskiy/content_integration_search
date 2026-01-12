@@ -369,15 +369,19 @@ view: content_integration_search {
     CASE
       WHEN ${TABLE}.response != 'success' THEN NULL
       WHEN ${TABLE}.response_time IS NULL THEN NULL
-      WHEN ${TABLE}.response_time * 1000 <= 200 THEN '0-200ms (Fastest)'
-      WHEN ${TABLE}.response_time * 1000 <= 500 THEN '201-500ms (Fast)'
-      WHEN ${TABLE}.response_time * 1000 <= 1000 THEN '501-1000ms (Medium)'
-      WHEN ${TABLE}.response_time * 1000 <= 2000 THEN '1001-2000ms (Slow)'
-      WHEN ${TABLE}.response_time * 1000 <= 4000 THEN '2001-4000ms (Very Slow)'
-      ELSE '4000ms+ (Slowest)'
+      WHEN ${TABLE}.response_time <= 2 THEN '0-2s'
+      WHEN ${TABLE}.response_time <= 5 THEN '2-5s'
+      WHEN ${TABLE}.response_time <= 10 THEN '5-10s'
+      WHEN ${TABLE}.response_time <= 15 THEN '10-15s'
+      WHEN ${TABLE}.response_time <= 20 THEN '15-20s'
+      WHEN ${TABLE}.response_time <= 30 THEN '20-30s'
+      WHEN ${TABLE}.response_time <= 40 THEN '30-40s'
+      WHEN ${TABLE}.response_time <= 50 THEN '40-50s'
+      WHEN ${TABLE}.response_time <= 60 THEN '50-60s'
+      ELSE '60s+'
     END ;;
-    description: "Response time divided into 6 fixed buckets. Database stores response_time in seconds, converted to milliseconds for bucketing. Failed requests are excluded."
-    suggestions: ["0-200ms (Fastest)", "201-500ms (Fast)", "501-1000ms (Medium)", "1001-2000ms (Slow)", "2001-4000ms (Very Slow)", "4000ms+ (Slowest)"]
+    description: "Response time divided into 12 fixed buckets covering 0-2 seconds with granular thresholds, then extending to higher ranges. Database stores response_time in seconds. Failed requests are excluded."
+    suggestions: ["0-2s", "2-5s", "5-10s", "10-15s", "15-20s", "20-30s", "30-40s", "40-50s", "50-60s", "60s+"]
   }
 
   dimension: response {
