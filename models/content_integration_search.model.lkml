@@ -7,7 +7,7 @@ include: "content_integration_search.ref.lkml"
 
 explore: content_integration_search {
   sql_always_where:
-    ${content_integration_search.date_added_raw} >= '2025-01-01'
+    ${content_integration_search.dayd_raw} >= '2025-01-01'
     AND ((${content_integration_search.api_user} IN ('kayak', 'kayakapp') AND ${content_integration_search.site_id} = 1)
          OR ${content_integration_search.api_user} NOT IN ('kayak', 'kayakapp')) ;;
   join: affiliate_mapping {

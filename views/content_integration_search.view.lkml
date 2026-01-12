@@ -5,7 +5,7 @@ view: content_integration_search {
   # DIMENSION GROUPS / KEYS
   # ===========================
 
-  dimension_group: date_added {
+  dimension_group: dayd {
     type: time
     timeframes: [raw, hour, date, week, month, quarter, year]
     sql: ${TABLE}.date_added ;;
@@ -15,7 +15,7 @@ view: content_integration_search {
   dimension: dayd_5minute {
     type: string
     label: "Dayd 05 Minute"
-    sql: substring(toString(toStartOfFiveMinute(${date_added_raw})), 1, 16) ;;
+    sql: substring(toString(toStartOfFiveMinute(${dayd_raw})), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
   }
@@ -23,7 +23,7 @@ view: content_integration_search {
   dimension: dayd_10minute {
     type: string
     label: "Dayd 10 Minute"
-    sql: substring(toString(toStartOfInterval(${date_added_raw}, toIntervalMinute(10))), 1, 16) ;;
+    sql: substring(toString(toStartOfInterval(${dayd_raw}, toIntervalMinute(10))), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 10-minute granularity (YYYY-MM-DD HH:MM)"
   }
@@ -31,7 +31,7 @@ view: content_integration_search {
   dimension: dayd_30minute {
     type: string
     label: "Dayd 30 Minute"
-    sql: substring(toString(toStartOfInterval(${date_added_raw}, toIntervalMinute(30))), 1, 16) ;;
+    sql: substring(toString(toStartOfInterval(${dayd_raw}, toIntervalMinute(30))), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 30-minute granularity (YYYY-MM-DD HH:MM)"
   }
