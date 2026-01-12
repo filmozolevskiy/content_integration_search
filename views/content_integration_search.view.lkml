@@ -367,15 +367,16 @@ view: content_integration_search {
     group_label: "5. Results"
     sql:
     CASE
-      WHEN ${response_time} = 0 THEN NULL
-      WHEN ${response_time} <= 200 THEN '0-200ms (Fastest)'
-      WHEN ${response_time} <= 500 THEN '201-500ms (Fast)'
-      WHEN ${response_time} <= 1000 THEN '501-1000ms (Medium)'
-      WHEN ${response_time} <= 2000 THEN '1001-2000ms (Slow)'
-      WHEN ${response_time} <= 4000 THEN '2001-4000ms (Very Slow)'
+      WHEN ${TABLE}.response != 'success' THEN NULL
+      WHEN ${TABLE}.response_time IS NULL THEN NULL
+      WHEN ${TABLE}.response_time <= 200 THEN '0-200ms (Fastest)'
+      WHEN ${TABLE}.response_time <= 500 THEN '201-500ms (Fast)'
+      WHEN ${TABLE}.response_time <= 1000 THEN '501-1000ms (Medium)'
+      WHEN ${TABLE}.response_time <= 2000 THEN '1001-2000ms (Slow)'
+      WHEN ${TABLE}.response_time <= 4000 THEN '2001-4000ms (Very Slow)'
       ELSE '4000ms+ (Slowest)'
     END ;;
-    description: "Response time divided into 6 fixed buckets. Failed requests (response_time = 0) are excluded."
+    description: "Response time divided into 6 fixed buckets. Failed requests are excluded."
     suggestions: ["0-200ms (Fastest)", "201-500ms (Fast)", "501-1000ms (Medium)", "1001-2000ms (Slow)", "2001-4000ms (Very Slow)", "4000ms+ (Slowest)"]
   }
 
