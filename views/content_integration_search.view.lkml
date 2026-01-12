@@ -1,91 +1,21 @@
 view: content_integration_search {
-  parameter: start_date {
-    type: date
-    default_value: "2025-01-01"
-  }
-
-  derived_table: {
-    sql:
-    SELECT
-      date_added AS dayd,
-      CASE
-        WHEN office_id IN ('AF8A','AF8B') THEN 'LH_Farelogix'
-        WHEN office_id IN ('AB2L','AB2O') THEN 'AA_Farelogix'
-        WHEN office_id = 'AHYI' THEN 'WS_Farelogix'
-        WHEN office_id IN ('BOGJ','BPNL') THEN 'AA_FarelogixNDC'
-        WHEN office_id IN ('BWKG','BV6I') THEN 'CM_FarelogixNDC'
-        WHEN office_id IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
-        WHEN office_id IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
-        WHEN office_id IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
-        ELSE content_source
-      END AS content_source,
-      JSONExtractString(request_options, 'suppliers_to_fetch') AS suppliers_to_fetch,
-      JSONExtractString(request_options, 'airline_codes') AS airline_codes,
-      JSONExtractString(request_options, 'preferred_carrier_codes') AS preferred_carriers,
-      JSONExtractString(request_options, 'fare_fetch_hash') AS ff_hash,
-      JSONExtractString(request_options, 'custom_search') AS custom_search,
-      affiliate_id,
-      target_id,
-      office_id,
-      origin,
-      destination,
-      origin_country,
-      destination_country,
-      api_user,
-      device_type,
-      search_id,
-      num_packages_returned,
-      response,
-      CASE
-        WHEN upperUTF8(trim(site_currency)) IN ('USD','CAD','GBP')
-          THEN upperUTF8(trim(site_currency))
-        ELSE 'Other'
-      END AS site_currency_normalized,
-      CASE
-        WHEN upperUTF8(trim(currency)) IN ('USD','CAD','GBP')
-          THEN upperUTF8(trim(currency))
-        ELSE 'Other'
-      END AS content_currency_normalized,
-      multiticket_part,
-      class,
-      CASE
-        WHEN NULLIF(trim(class), '') IS NULL THEN NULL
-        WHEN upperUTF8(trim(class)) IN ('ECONOMY', 'ECONMY', 'Y', 'M') THEN 'Economy'
-        WHEN upperUTF8(trim(class)) IN ('BUSINESS', 'C') THEN 'Business'
-        WHEN upperUTF8(trim(class)) IN ('FIRST') THEN 'First'
-        WHEN upperUTF8(trim(class)) IN ('ECONOMYPREMIUM', 'ECONOMY_PREMIUM', 'PREMIUMECONOMY', 'ECONOMY PREMIUM') THEN 'Economy Premium'
-        ELSE class
-      END AS class_normalized,
-      source,
-      api_call,
-      CASE
-        WHEN response != 'success' THEN 0
-        WHEN response_time IS NULL THEN 0
-        ELSE response_time
-      END AS response_time
-    FROM search_api_stats.gds_raw
-    WHERE
-        date_added > {% parameter start_date %}
-        -- This filter prevents search triplication bug: Include Kayak searches only for site_id=1, all other api_users regardless of site
-        AND ((api_user IN ('kayak', 'kayakapp') AND site_id = 1) OR api_user NOT IN ('kayak', 'kayakapp'))
-        ;;
-  }
+  sql_table_name: search_api_stats.gds_raw ;;
 
   # ===========================
   # DIMENSION GROUPS / KEYS
   # ===========================
 
-  dimension_group: dayd {
+  dimension_group: date_added {
     type: time
     timeframes: [raw, hour, date, week, month, quarter, year]
-    sql: ${TABLE}.dayd ;;
+    sql: ${TABLE}.date_added ;;
     group_label: "1. Time"
   }
 
   dimension: dayd_5minute {
     type: string
     label: "Dayd 05 Minute"
-    sql: substring(toString(toStartOfFiveMinute(${TABLE}.dayd)), 1, 16) ;;
+    sql: substring(toString(toStartOfFiveMinute(${date_added_raw})), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 5-minute granularity (YYYY-MM-DD HH:MM)"
   }
@@ -93,7 +23,7 @@ view: content_integration_search {
   dimension: dayd_10minute {
     type: string
     label: "Dayd 10 Minute"
-    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(10))), 1, 16) ;;
+    sql: substring(toString(toStartOfInterval(${date_added_raw}, toIntervalMinute(10))), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 10-minute granularity (YYYY-MM-DD HH:MM)"
   }
@@ -101,7 +31,7 @@ view: content_integration_search {
   dimension: dayd_30minute {
     type: string
     label: "Dayd 30 Minute"
-    sql: substring(toString(toStartOfInterval(${TABLE}.dayd, toIntervalMinute(30))), 1, 16) ;;
+    sql: substring(toString(toStartOfInterval(${date_added_raw}, toIntervalMinute(30))), 1, 16) ;;
     group_label: "1. Time"
     description: "Date and time at 30-minute granularity (YYYY-MM-DD HH:MM)"
   }
@@ -113,13 +43,82 @@ view: content_integration_search {
     hidden: yes
   }
 
+  dimension: site_id {
+    type: number
+    sql: ${TABLE}.site_id ;;
+    hidden: yes
+  }
+
+  # ===========================
+  # HIDDEN HELPER DIMENSIONS
+  # ===========================
+
+  dimension: ff_hash {
+    type: string
+    sql: JSONExtractString(${TABLE}.request_options, 'fare_fetch_hash') ;;
+    hidden: yes
+  }
+
+  dimension: custom_search_raw {
+    type: string
+    sql: JSONExtractString(${TABLE}.request_options, 'custom_search') ;;
+    hidden: yes
+  }
+
+  dimension: site_currency_normalized {
+    type: string
+    sql:
+      CASE
+        WHEN upperUTF8(trim(${TABLE}.site_currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(${TABLE}.site_currency))
+        ELSE 'Other'
+      END ;;
+    hidden: yes
+  }
+
+  dimension: content_currency_normalized {
+    type: string
+    sql:
+      CASE
+        WHEN upperUTF8(trim(${TABLE}.currency)) IN ('USD','CAD','GBP')
+          THEN upperUTF8(trim(${TABLE}.currency))
+        ELSE 'Other'
+      END ;;
+    hidden: yes
+  }
+
+  dimension: class_normalized {
+    type: string
+    sql:
+      CASE
+        WHEN NULLIF(trim(${TABLE}.class), '') IS NULL THEN NULL
+        WHEN upperUTF8(trim(${TABLE}.class)) IN ('ECONOMY', 'ECONMY', 'Y', 'M') THEN 'Economy'
+        WHEN upperUTF8(trim(${TABLE}.class)) IN ('BUSINESS', 'C') THEN 'Business'
+        WHEN upperUTF8(trim(${TABLE}.class)) IN ('FIRST') THEN 'First'
+        WHEN upperUTF8(trim(${TABLE}.class)) IN ('ECONOMYPREMIUM', 'ECONOMY_PREMIUM', 'PREMIUMECONOMY', 'ECONOMY PREMIUM') THEN 'Economy Premium'
+        ELSE ${TABLE}.class
+      END ;;
+    hidden: yes
+  }
+
   # ===========================
   # DIMENSIONS
   # ===========================
 
   dimension: content_source {
     type: string
-    sql: ${TABLE}.content_source ;;
+    sql:
+      CASE
+        WHEN ${office_id} IN ('AF8A','AF8B') THEN 'LH_Farelogix'
+        WHEN ${office_id} IN ('AB2L','AB2O') THEN 'AA_Farelogix'
+        WHEN ${office_id} = 'AHYI' THEN 'WS_Farelogix'
+        WHEN ${office_id} IN ('BOGJ','BPNL') THEN 'AA_FarelogixNDC'
+        WHEN ${office_id} IN ('BWKG','BV6I') THEN 'CM_FarelogixNDC'
+        WHEN ${office_id} IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
+        WHEN ${office_id} IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
+        WHEN ${office_id} IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
+        ELSE ${TABLE}.content_source
+      END ;;
     group_label: "2. Content"
   }
 
@@ -131,19 +130,19 @@ view: content_integration_search {
 
   dimension: suppliers_to_fetch {
     type: string
-    sql: ${TABLE}.suppliers_to_fetch ;;
+    sql: JSONExtractString(${TABLE}.request_options, 'suppliers_to_fetch') ;;
     group_label: "2. Content"
   }
 
   dimension: airline_codes {
     type: string
-    sql: ${TABLE}.airline_codes ;;
+    sql: JSONExtractString(${TABLE}.request_options, 'airline_codes') ;;
     group_label: "2. Content"
   }
 
   dimension: preferred_carriers {
     type: string
-    sql: ${TABLE}.preferred_carriers ;;
+    sql: JSONExtractString(${TABLE}.request_options, 'preferred_carrier_codes') ;;
     group_label: "2. Content"
   }
 
@@ -164,7 +163,7 @@ view: content_integration_search {
 
   dimension: class {
     type: string
-    sql: ${TABLE}.class_normalized ;;
+    sql: ${class_normalized} ;;
     group_label: "2. Content"
     description: "Normalized service class for the flight search. Maps variations (economy/Economy/econmy/Y/M, business/Business/C, first/First, economypremium/EconomyPremium/Economy Premium, etc.) to standard values: Economy, Business, First, Economy Premium"
     suggestions: ["Economy", "Business", "First", "Economy Premium"]
@@ -180,7 +179,7 @@ view: content_integration_search {
   dimension: is_ffp {
     label: "Is Fare Fetch +"
     type: yesno
-    sql: (NULLIF(TRIM(${TABLE}.ff_hash), '') IS NOT NULL) ;;
+    sql: (NULLIF(TRIM(${ff_hash}), '') IS NOT NULL) ;;
     group_label: "3. Search Source"
     description: "Indicates if the search belongs to Fare Fetch Plus (FF+) service. Determined by presence of fare_fetch_hash."
     hidden: yes
@@ -221,7 +220,7 @@ view: content_integration_search {
   dimension: custom_search {
     label: "Custom Search"
     type: yesno
-    sql: (${TABLE}.custom_search = '1') ;;
+    sql: (${custom_search_raw} = '1') ;;
     group_label: "3. Search Source"
     description: "Indicates if the search is a custom search (custom_search = '1' in request_options)"
   }
@@ -291,7 +290,7 @@ view: content_integration_search {
     label: "Site Currency"
     type: string
     group_label: "3. Search Source"
-    sql: ${TABLE}.site_currency_normalized ;;
+    sql: ${site_currency_normalized} ;;
     suggestions: ["USD","CAD","GBP","Other"]
   }
 
@@ -299,7 +298,7 @@ view: content_integration_search {
     label: "Content Currency"
     type: string
     group_label: "3. Search Source"
-    sql: ${TABLE}.content_currency_normalized ;;
+    sql: ${content_currency_normalized} ;;
     suggestions: ["USD","CAD","GBP","Other"]
     hidden: yes
   }
@@ -353,7 +352,12 @@ view: content_integration_search {
     label: "Response Time (ms, 0 if not success)"
     type: number
     value_format: "0.00"
-    sql: ${TABLE}.response_time ;;
+    sql:
+      CASE
+        WHEN ${TABLE}.response != 'success' THEN 0
+        WHEN ${TABLE}.response_time IS NULL THEN 0
+        ELSE ${TABLE}.response_time
+      END ;;
     group_label: "5. Results"
   }
 
