@@ -66,8 +66,8 @@ view: content_integration_search {
   }
 
   dimension: enable_ndc_content_raw {
-    type: string
-    sql: JSONExtractString(${TABLE}.request_options, 'enable_ndc_content') ;;
+    type: yesno
+    sql: (visitParamHas(${TABLE}.request_options, 'enable_ndc_content') = 1) ;;
     hidden: yes
   }
 
@@ -115,7 +115,6 @@ view: content_integration_search {
     type: string
     sql:
       CASE
-        WHEN ${is_amadeusndc} THEN 'AmadeusNDC'
         WHEN ${office_id} IN ('AF8A','AF8B') THEN 'LH_Farelogix'
         WHEN ${office_id} IN ('AB2L','AB2O') THEN 'AA_Farelogix'
         WHEN ${office_id} = 'AHYI' THEN 'WS_Farelogix'
@@ -124,10 +123,11 @@ view: content_integration_search {
         WHEN ${office_id} IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
         WHEN ${office_id} IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
         WHEN ${office_id} IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
+        WHEN ${enable_ndc_content_raw} THEN 'AmadeusNDC'
         ELSE ${TABLE}.content_source
       END ;;
     group_label: "2. Content"
-    description: "Content source/GDS provider. If enable_ndc_content marker is present, returns 'AmadeusNDC'. Otherwise uses office_id mapping or raw content_source value."
+    description: "Content source/GDS provider. Checks office_id first (fast), then enable_ndc_content marker (slower), then raw content_source value. Optimized for performance."
   }
 
   dimension: office_id {
@@ -180,9 +180,9 @@ view: content_integration_search {
   dimension: is_amadeusndc {
     label: "Is AmadeusNDC"
     type: yesno
-    sql: (NULLIF(TRIM(${enable_ndc_content_raw}), '') IS NOT NULL) ;;
+    sql: (visitParamHas(${TABLE}.request_options, 'enable_ndc_content') = 1) ;;
     group_label: "2. Content"
-    description: "Indicates if the GDS is AmadeusNDC. Determined by presence of enable_ndc_content marker in request_options."
+    description: "Indicates if the GDS is AmadeusNDC. Determined by presence of enable_ndc_content marker in request_options. Uses visitParamHas for optimal performance (checks existence without extracting value)."
   }
 
   dimension: is_multiticket{
