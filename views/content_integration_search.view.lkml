@@ -65,6 +65,12 @@ view: content_integration_search {
     hidden: yes
   }
 
+  dimension: enable_ndc_content_raw {
+    type: string
+    sql: JSONExtractString(${TABLE}.request_options, 'enable_ndc_content') ;;
+    hidden: yes
+  }
+
   dimension: site_currency_normalized {
     type: string
     sql:
@@ -109,6 +115,7 @@ view: content_integration_search {
     type: string
     sql:
       CASE
+        WHEN ${is_amadeusndc} THEN 'AmadeusNDC'
         WHEN ${office_id} IN ('AF8A','AF8B') THEN 'LH_Farelogix'
         WHEN ${office_id} IN ('AB2L','AB2O') THEN 'AA_Farelogix'
         WHEN ${office_id} = 'AHYI' THEN 'WS_Farelogix'
@@ -120,6 +127,7 @@ view: content_integration_search {
         ELSE ${TABLE}.content_source
       END ;;
     group_label: "2. Content"
+    description: "Content source/GDS provider. If enable_ndc_content marker is present, returns 'AmadeusNDC'. Otherwise uses office_id mapping or raw content_source value."
   }
 
   dimension: office_id {
@@ -167,6 +175,14 @@ view: content_integration_search {
     group_label: "2. Content"
     description: "Normalized service class for the flight search. Maps variations (economy/Economy/econmy/Y/M, business/Business/C, first/First, economypremium/EconomyPremium/Economy Premium, etc.) to standard values: Economy, Business, First, Economy Premium"
     suggestions: ["Economy", "Business", "First", "Economy Premium"]
+  }
+
+  dimension: is_amadeusndc {
+    label: "Is AmadeusNDC"
+    type: yesno
+    sql: (NULLIF(TRIM(${enable_ndc_content_raw}), '') IS NOT NULL) ;;
+    group_label: "2. Content"
+    description: "Indicates if the GDS is AmadeusNDC. Determined by presence of enable_ndc_content marker in request_options."
   }
 
   dimension: is_multiticket{
