@@ -180,9 +180,9 @@ view: content_integration_search {
   dimension: is_amadeusndc {
     label: "Is AmadeusNDC"
     type: yesno
-    sql: (visitParamHas(${TABLE}.request_options, 'enable_ndc_content') = 1) ;;
+    sql: (${TABLE}.content_source = 'amadeus' AND visitParamHas(${TABLE}.request_options, 'enable_ndc_content') = 1) ;;
     group_label: "2. Content"
-    description: "Indicates if the GDS is AmadeusNDC. Determined by presence of enable_ndc_content marker in request_options. Uses visitParamHas for optimal performance (checks existence without extracting value)."
+    description: "Indicates if the GDS is AmadeusNDC. Determined by content_source being 'amadeus' and the presence of enable_ndc_content marker in request_options. Uses visitParamHas for optimal performance (checks existence without extracting value)."
   }
 
   dimension: is_multiticket{
