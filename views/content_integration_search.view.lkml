@@ -365,16 +365,16 @@ view: content_integration_search {
   }
 
   dimension: response_time {
-    label: "Response Time (ms, 0 if not success)"
+    label: "Response Time (ms)"
     type: number
     value_format: "0.00"
     sql:
       CASE
-        WHEN ${TABLE}.response != 'success' THEN 0
-        WHEN ${TABLE}.response_time IS NULL THEN 0
+        WHEN ${TABLE}.response != 'success' THEN NULL
         ELSE ${TABLE}.response_time
       END ;;
     group_label: "5. Results"
+    description: "Response time for the search. Failed requests (response != 'success') are excluded (returned as NULL) to prevent skewing performance metrics."
   }
 
   dimension: response_time_bucket {
@@ -383,20 +383,19 @@ view: content_integration_search {
     group_label: "5. Results"
     sql:
     CASE
-      WHEN ${TABLE}.response != 'success' THEN NULL
-      WHEN ${TABLE}.response_time IS NULL THEN NULL
-      WHEN ${TABLE}.response_time <= 2 THEN '0-2s'
-      WHEN ${TABLE}.response_time <= 5 THEN '2-5s'
-      WHEN ${TABLE}.response_time <= 10 THEN '5-10s'
-      WHEN ${TABLE}.response_time <= 15 THEN '10-15s'
-      WHEN ${TABLE}.response_time <= 20 THEN '15-20s'
-      WHEN ${TABLE}.response_time <= 30 THEN '20-30s'
-      WHEN ${TABLE}.response_time <= 40 THEN '30-40s'
-      WHEN ${TABLE}.response_time <= 50 THEN '40-50s'
-      WHEN ${TABLE}.response_time <= 60 THEN '50-60s'
+      WHEN ${response_time} IS NULL THEN NULL
+      WHEN ${response_time} <= 2 THEN '0-2s'
+      WHEN ${response_time} <= 5 THEN '2-5s'
+      WHEN ${response_time} <= 10 THEN '5-10s'
+      WHEN ${response_time} <= 15 THEN '10-15s'
+      WHEN ${response_time} <= 20 THEN '15-20s'
+      WHEN ${response_time} <= 30 THEN '20-30s'
+      WHEN ${response_time} <= 40 THEN '30-40s'
+      WHEN ${response_time} <= 50 THEN '40-50s'
+      WHEN ${response_time} <= 60 THEN '50-60s'
       ELSE '60s+'
     END ;;
-    description: "Response time divided into 12 fixed buckets covering 0-2 seconds with granular thresholds, then extending to higher ranges. Database stores response_time in seconds. Failed requests are excluded."
+    description: "Response time divided into fixed buckets. Failed searches are excluded as they have a NULL response_time."
     suggestions: ["0-2s", "2-5s", "5-10s", "10-15s", "15-20s", "20-30s", "30-40s", "40-50s", "50-60s", "60s+"]
   }
 
