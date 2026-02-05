@@ -65,6 +65,7 @@ view: content_integration_search {
     hidden: yes
   }
 
+  ## this is the way to track amadeusndc, but it's too slow if freezes the board. 
   dimension: enable_ndc_content_raw {
     type: yesno
     sql: (visitParamHas(${TABLE}.request_options, 'enable_ndc_content') = 1) ;;
