@@ -115,7 +115,7 @@ view: content_integration_search {
     type: string
     sql:
       CASE
-        WHEN ${is_amadeusndc} THEN 'AmadeusNDC'
+        WHEN ${is_amadeusndc} THEN 'amadeusndc'
         WHEN ${office_id} IN ('AF8A','AF8B') THEN 'LH_Farelogix'
         WHEN ${office_id} IN ('AB2L','AB2O') THEN 'AA_Farelogix'
         WHEN ${office_id} = 'AHYI' THEN 'WS_Farelogix'
