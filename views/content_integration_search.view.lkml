@@ -123,7 +123,7 @@ view: content_integration_search {
         WHEN ${office_id} IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
         WHEN ${office_id} IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
         WHEN ${office_id} IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
-        WHEN ${enable_ndc_content_raw} THEN 'AmadeusNDC'
+        WHEN ${enable_ndc_content_raw} THEN 'amadeusndc'
         ELSE ${TABLE}.content_source
       END ;;
     group_label: "2. Content"
