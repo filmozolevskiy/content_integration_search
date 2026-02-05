@@ -123,11 +123,10 @@ view: content_integration_search {
         WHEN ${office_id} IN ('BXVU', 'BYZA') THEN 'TS_FarelogixNDC'
         WHEN ${office_id} IN ('NAVPDCAD', 'NAVPDUSD') THEN 'PD_Navitaire-NDC'
         WHEN ${office_id} IN ('NAVNKUSDMC', 'NAVNKUSD') THEN 'NK_Navitaire-NDC'
-        WHEN ${enable_ndc_content_raw} THEN 'AmadeusNDC'
         ELSE ${TABLE}.content_source
       END ;;
     group_label: "2. Content"
-    description: "Content source/GDS provider. Checks office_id first (fast), then enable_ndc_content marker (slower), then raw content_source value. Optimized for performance."
+    description: "Content source/GDS provider based on office_id mapping. To filter for AmadeusNDC specifically, use the 'Is AmadeusNDC' dimension for better performance."
   }
 
   dimension: office_id {
