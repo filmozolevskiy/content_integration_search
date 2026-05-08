@@ -162,6 +162,12 @@ view: content_integration_search {
     hidden: yes
   }
 
+  dimension: is_returned {
+    type: yesno
+    sql: ${num_packages_returned} > 0 ;;
+    hidden: yes
+  }
+
   dimension: multiticket_part {
     type: string
     sql: ${TABLE}.multiticket_part ;;
@@ -467,7 +473,7 @@ view: content_integration_search {
 
   measure: returned_packages_count {
     type: count
-    filters: [num_packages_returned: ">0"]
+    filters: [is_returned: "yes"]
     group_label: "Volume"
     description: "Count of searches that returned at least one package"
     hidden: yes
